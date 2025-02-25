@@ -4,8 +4,11 @@ const router = express.Router();
 
 const clientsController = require('../controllers/clientsController');
 
-// Obtener todos los clientes
-router.get('/', clientsController.getAllClients);
+// Obtener todos los clientes activos
+router.get('/', clientsController.getAllClientsActive);
+
+// Obtener todos los clientes eliminados
+router.get('/delete', clientsController.getAllClientsDelete);
 
 // Obtener un cliente por ID
 router.get('/:id', clientsController.getClientById);

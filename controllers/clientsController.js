@@ -2,8 +2,7 @@
 
 // Expresión regular para validar el formato de un correo electrónico
 function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
 // Arreglo en memoria para almacenar clientes
@@ -11,8 +10,19 @@ let clients = [];
 let nextId = 1;
 
 // GET /api/clients - Obtener todos los clientes
-exports.getAllClients = (req, res) => {
-    res.json(clients);
+exports.getAllClientsActive = (req, res) => {
+    // Filtramos los clientes eliminados
+    let clientsActive = clients.filter(c => c.status != "delete");
+
+    res.json(clientsActive);
+};
+
+// GET /api/clients/delete - Obtener todos los clientes
+exports.getAllClientsDelete = (req, res) => {
+    // Filtramos los clientes activos
+    let clientsDelete = clients.filter(c => c.status != "active");
+
+    res.json(clientsDelete);
 };
 
 // GET /api/clients/:id - Obtener un cliente por su ID
@@ -33,7 +43,7 @@ exports.createClient = (req, res) => {
     if (!name || !lastName || !phone || !email) {
         return res.status(400).json({ message: 'Todos los datos son requeridos' });
     }
-    else if (!isValidEmail(email)){
+    if (!isValidEmail(email)){
         return res.status(400).json({ message: 'Formato de correo electronico incorrecto' });
     }
 
@@ -43,7 +53,7 @@ exports.createClient = (req, res) => {
         lastName,
         phone,
         email,
-        status : "activate"
+        status : "active"
     };
 
     clients.push(newClient);
@@ -60,7 +70,7 @@ exports.updateClient = (req, res) => {
         return res.status(404).json({ message: 'Cliente no encontrado' });
     }
 
-    if (!isValidEmail(email)){
+    if (email !== undefined && !isValidEmail(email)){
         return res.status(400).json({ message: 'Formato de correo electronico incorrecto' });
     }
 
@@ -71,7 +81,7 @@ exports.updateClient = (req, res) => {
     if (email !== undefined) client.email = email;
     
     // reactivamos el estado si el cliente fue previamente eliminado
-    client.status = "activate"
+    client.status = "active"
 
     res.json(client);
 };
